@@ -2,7 +2,6 @@
 # import ...
 import os
 import openai
-import pickle
 from dotenv import load_dotenv
 from langchain.embeddings.openai import OpenAIEmbeddings
 from llama_index.node_parser.extractors.metadata_extractors import (
@@ -12,22 +11,12 @@ from llama_index.node_parser.extractors.metadata_extractors import (
 #llama imports 
 from llama_index.node_parser.simple import SimpleNodeParser
 from llama_index import SimpleDirectoryReader
-from llama_index import (SimpleDirectoryReader, 
-                         ServiceContext, 
-                         LLMPredictor, 
-                         GPTVectorStoreIndex)
-from langchain.chat_models import ChatOpenAI
 import pinecone
-
-
-from llama_index_evals import get_query_responce_nodes, generate_questions_and_save, create_and_save_index
 
 #load env vars
 load_dotenv()
 data_dir = r"Data"
 openai.api_key = os.getenv("OPENAI_API_KEY")
-
-
 
 #Set up extractor and parser
 entity_extractor = EntityExtractor(
@@ -59,7 +48,7 @@ def load_data(data_dir):
 def initialize_db():
     #Init the pinecone index   
     pinecone.init(      
-        api_key='8062bda0-956d-471c-8498-0b91c7997b98',      
+        api_key= os.getenv("PINECONE_API_KEY"),      
         environment='us-west1-gcp-free'      
     ) 
 

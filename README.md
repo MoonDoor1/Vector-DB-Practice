@@ -7,9 +7,9 @@ A lot of this work will be done by following the documentation.
 
 The Vector dbs I will use are:
 
-Pinecone
+Pinecone - https://docs.pinecone.io/
 
-Weaveiate 
+Weaveiate - https://weaviate.io/developers/weaviate/quickstart
 
 Qdrant 
 

@@ -4,7 +4,6 @@ import os
 import openai
 import pickle
 from dotenv import load_dotenv
-from langchain.embeddings.openai import OpenAIEmbeddings
 from llama_index.node_parser.extractors.metadata_extractors import (
     MetadataExtractor,
     EntityExtractor,
@@ -67,7 +66,7 @@ def load_data(data_dir):
 def initialize_db():
     #Init the pinecone index   
     pinecone.init(      
-        api_key='8062bda0-956d-471c-8498-0b91c7997b98',      
+        api_key= os.getenv("PINECONE_API_KEY"),      
         environment='us-west1-gcp-free'      
     ) 
 
