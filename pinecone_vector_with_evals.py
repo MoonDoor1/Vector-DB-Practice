@@ -27,6 +27,14 @@ load_dotenv()
 data_dir = r"Data"
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+llm_predictor = LLMPredictor(
+        llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
+    )
+
+service_context = ServiceContext.from_defaults(
+        llm_predictor=llm_predictor, chunk_size_limit=3000
+    )
+
 
 
 #Set up extractor and parser
@@ -112,22 +120,95 @@ def embed_data(nodes_by_document, index):
     # All vectors can be upserted to Pinecone in one go
     upsert_response = index.upsert(vectors=pinecone_vectors)
     print("upsert finished, Length of pinecone vectors", len(pinecone_vectors))
+#evalualte
+def evaluate_vector_database(tessting_index, questions, responses, service_context):
+    # Initialize the query engine
+    query_engine = tessting_index.as_query_engine(similarity_top_k=3, service_context=service_context)
+
+    i = 0
+    for question in questions:
+        # Evaluate the response
+        eval_result = get_query_responce_nodes(question, responses[i], service_context)
+
+        # Print the evaluation result
+        print(eval_result)
+        i += 1
+
+def generate_questions_and_responses(documents, service_context, index):
+    # Generate questions
+    print("generating questions..")
+    questions = generate_questions_and_save(documents, service_context)
+    print("questions generated", questions[:3])
+
+    # Create query engine
+    print("creating query index")
+    query_engine = index.as_query_engine(similarity_top_k=3, service_context=service_context)
+
+    # Check if responses file exists
+    responses_file = 'responses.pkl'
+    if os.path.exists(responses_file):
+        # Load responses from file
+        print("loading responses from file")
+        with open(responses_file, 'rb') as f:
+            responses = pickle.load(f)
+    else:
+        # Generate responses
+        print("generating responses")
+        responses = []
+        for i, question in enumerate(questions):
+            print(f"Generating response for question {i+1} of {len(questions)}")
+            response = query_engine.query(question)
+            print(f"Response: {response}")
+            responses.append(response)
+
+        # Save responses to a file
+        print("saving responses to file")
+        with open(responses_file, 'wb') as f:
+            pickle.dump(responses, f)
+
+    print("responses generated", responses[:3])
+
+    return questions, responses
 
 def main():
     # Initialize the database
-    print("initlizing db.. ")
-    index = initialize_db()
+    # print("initlizing db.. ")
+    # index = initialize_db()
 
-    # Load your data
-    # print("loading and preparing data..")
-    data = load_data(data_dir)  # Replace with your data loading code
-    nodes = get_nodes(data)
+    # # Load your data
+    # # print("loading and preparing data..")
+    # data = load_data(data_dir)  # Replace with your data loading code
+    # nodes = get_nodes(data)
 
-    #embeds the data and upserts it to pinecone
-    print("Embeding and upseting data...")
-    embed_data(nodes, index)
-    print("upsert successful!")
+    # #embeds the data and upserts it to pinecone
+    # print("Embeding and upseting data...")
+    # embed_data(nodes, index)
+    # print("upsert successful!")
 
+    # # Generate questions
+    # tessting_index = create_and_save_index(data, "vector_index", 'storage')
+    # questions,responses = generate_questions_and_responses(data, service_context, tessting_index)  # Replace with your question generation code
+    
+
+    # # Evaluate performance
+    # print("Evaluating performance..")
+    # evaluate_vector_database(tessting_index, questions, responses, service_context)
+    # Load questions from pickle file
+    # Load questions from pickle file
+    with open('questions.pkl', 'rb') as f:
+        questions = pickle.load(f)
+
+        # Print the first 5 questions
+        for i in range(5):
+            print(questions[i])
+
+    # Load responses from pickle file
+    with open('responses.pkl', 'rb') as f:
+        responses = pickle.load(f)
+
+        # Print the first 5 responses
+        for i in range(5):
+            print(responses[i])
 
 if __name__ == "__main__":
     main()

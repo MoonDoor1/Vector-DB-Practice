@@ -1,5 +1,6 @@
 venv/
 env/
+new_env/
 .chainlit/
 __pycache__/
 storage/

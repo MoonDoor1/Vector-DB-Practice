@@ -1,63 +1,99 @@
 # Import necessary libraries
-# import ...
 import os
 import openai
+#import vector db
 from dotenv import load_dotenv
+from langchain.embeddings.openai import OpenAIEmbeddings
+from llama_index.node_parser.extractors.metadata_extractors import (
+    MetadataExtractor,
+    EntityExtractor,
+)
+from llama_index.node_parser.simple import SimpleNodeParser
+from llama_index import SimpleDirectoryReader
+from langchain.chat_models import ChatOpenAI
 
-#load env vars
+# Load environment variables
 load_dotenv()
-data_dir = r"/Users/nickrystynak/Desktop/AI project/Updated Investor Letters/Allie Docs"
+data_dir = r"Data"
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-#load the data
+# Set up extractor and parser
+entity_extractor = EntityExtractor(
+    prediction_threshold=0.5,
+    label_entities=True,
+    device="cpu",
+)
+
+metadata_extractor = MetadataExtractor(extractors=[entity_extractor])
+node_parser = SimpleNodeParser.from_defaults(metadata_extractor=metadata_extractor)
+
+# Load the data
 def load_data(data_dir):
-    pass
+    if not os.path.exists(data_dir):
+        raise Exception(f"Directory {data_dir} does not exist")
+
+    pdf_files = [os.path.join(data_dir, pdf_file) for pdf_file in os.listdir(data_dir) if pdf_file.endswith('.pdf')]
+    documents = SimpleDirectoryReader(input_files=pdf_files).load_data()
+
+    return documents
 
 # Initialize the database
 def initialize_db():
-    # Code to initialize the database
+    #init db 
+
     pass
 
-# Data ingestion
-def ingest_data(data):
-    # Code to ingest data into the database
-    pass
 
-# Indexing
-def create_index():
-    # Code to create an index for the data
-    pass
+    #return index
 
-# Querying
-def query_db(query):
-    # Code to query the database
-    pass
+def get_nodes(documents):
+    nodes_by_document = {}
+    nodes = node_parser.get_nodes_from_documents(documents)
 
-# Evaluation
-def evaluate_performance():
-    # Code to evaluate the performance of the database
-    pass
+    for node in nodes:
+        file_name = node.metadata['file_name']
+
+        if file_name not in nodes_by_document:
+            nodes_by_document[file_name] = []
+
+        nodes_by_document[file_name].append(node)
+
+    return nodes_by_document
+
+# Embed data and upsert it to Pinecone
+def embed_data(nodes_by_document, index):
+    pinecone_vectors = []
+    print("starting embeddings")
+
+    for filename, nodes in nodes_by_document.items():
+        for i, node in enumerate(nodes):
+            doc = node.text
+            
+            embedding = openai.Embedding.create(
+                input=doc,
+                model="text-embedding-ada-002"
+            )
+            vector = embedding["data"][0]["embedding"]
+            
+            ### CREATE VECTORS and APPEND####
+            # pinecone_vector = (str(i), vector, {"text": doc, "source": filename})
+            # pinecone_vectors.append(pinecone_vector)
+
+    print('finished embeddings starting upsert')
+    # UPSERT Vectors to db
+    # upsert_response = index.upsert(vectors=pinecone_vectors)
+    print("upsert finished, Length of pinecone vectors", len(pinecone_vectors))
 
 def main():
-    #
+    print("initlizing db.. ")
+    index = initialize_db()
 
-    # Initialize the database
-    print("initlizing db ")
-    initialize_db()
+    data = load_data(data_dir)
+    nodes = get_nodes(data)
 
-    # Load your data
-    data = None  # Replace with your data loading code
-    ingest_data(data)
-
-    # Create an index
-    create_index()
-
-    # Query the database
-    query = None  # Replace with your query
-    query_db(query)
-
-    # Evaluate performance
-    evaluate_performance()
+    print("Embeding and upseting data...")
+    embed_data(nodes, index)
+    print("upsert successful!")
 
 if __name__ == "__main__":
     main()
