@@ -2,5 +2,6 @@ venv/
 env/
 .chainlit/
 __pycache__/
+storage/
 *.log
 .env
