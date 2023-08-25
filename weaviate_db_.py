@@ -105,6 +105,11 @@ def get_nodes(documents, filename='nodes.pkl'):
 
             nodes_by_document[file_name].append(node)
 
+            # Extract entities
+            for entity in node.metadata.get('entities', []):
+                # Save the entities as metadata
+                node.metadata[entity] = entity
+
             # Print the available attributes and methods of the node
             print(dir(node))
 
@@ -200,17 +205,17 @@ def generative_search(client, concepts, prompt):
 
 
 def main():
-    # print("initlizing db.. ")
-    # client = initialize_db(True)
+    print("initlizing db.. ")
+    client = initialize_db(True)
 
-    # data = load_data(data_dir)
-    # nodes = get_nodes(data)
+    data = load_data(data_dir)
+    nodes = get_nodes(data, 'newnodes.pkl')
 
     # print("Embeding and upseting data...")
     # embed_data(nodes, client)
     # print("upsert successful!")
 
-    client = initialize_db(False)
+    # client = initialize_db(False)
     # concepts = ["high frequency trading", "Lindsell Train Limited's investment approach"]
     # print(similarity_search(client, concepts))
 
@@ -220,13 +225,13 @@ def main():
     # print(generative_search(client, concepts, prompt))
 
     # Generative search
-    concepts = ["high frequency trading", "Michael Lewis's Flash Boys", "Lindsell Train", "Limited's investment approach"]
-    prompt = "How has the practice of high frequency trading, as described in Michael Lewis's Flash Boys, contrasted with Lindsell Train Limited's investment approach?"
+    # concepts = ["high frequency trading", "Michael Lewis's Flash Boys", "Lindsell Train", "Limited's investment approach"]
+    # prompt = "How has the practice of high frequency trading, as described in Michael Lewis's Flash Boys, contrasted with Lindsell Train Limited's investment approach?"
 
-    response = generative_search(client, concepts, prompt)
-    response_dict = json.loads(response)  # Convert the JSON string to a dictionary
+    # response = generative_search(client, concepts, prompt)
+    # response_dict = json.loads(response)  # Convert the JSON string to a dictionary
 
-    print(response_dict)
+    # print(response_dict)
     
     #get all queery
     # client = initialize_db(False)
