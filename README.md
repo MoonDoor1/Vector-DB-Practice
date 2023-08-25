@@ -23,7 +23,7 @@ Milvus/Zilliz - https://docs.zilliz.com/docs/quick-start-1
 
 - Didnt enjoy this, Milvus zilliz confusing which is which or if they both work. Dont plan on using this when the other options are so much better
 
-Chroma -
+Chroma - https://docs.trychroma.com/getting-started
 
 LanceDB
 
