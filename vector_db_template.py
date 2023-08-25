@@ -1,6 +1,7 @@
 # Import necessary libraries
 import os
 import openai
+import pickle
 #import vector db
 from dotenv import load_dotenv
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -46,17 +47,35 @@ def initialize_db():
 
     #return index
 
-def get_nodes(documents):
-    nodes_by_document = {}
-    nodes = node_parser.get_nodes_from_documents(documents)
+def get_nodes(documents, filename='nodes.pkl'):
+    if os.path.exists(filename):
+        with open(filename, 'rb') as handle:
+            nodes_by_document = pickle.load(handle)
+    else:
+        nodes_by_document = {}
+        nodes = node_parser.get_nodes_from_documents(documents)
 
-    for node in nodes:
-        file_name = node.metadata['file_name']
+        for node in nodes:
+            file_name = node.metadata['file_name']
 
-        if file_name not in nodes_by_document:
-            nodes_by_document[file_name] = []
+            if file_name not in nodes_by_document:
+                nodes_by_document[file_name] = []
 
-        nodes_by_document[file_name].append(node)
+            nodes_by_document[file_name].append(node)
+
+            # Extract entities
+            for entity in node.metadata.get('entities', []):
+                # Save the entities as metadata
+                node.metadata[entity] = entity
+
+            # Print the available attributes and methods of the node
+            print(dir(node))
+
+            # Print entities for each node
+            print(f"Entities for node {node.id_}: {node.metadata.get('entities')}")
+
+        with open(filename, 'wb') as handle:
+            pickle.dump(nodes_by_document, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     return nodes_by_document
 

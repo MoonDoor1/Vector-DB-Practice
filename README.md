@@ -9,13 +9,21 @@ The Vector dbs I will use are:
 
 Pinecone - https://docs.pinecone.io/
 
+Plenty of documentation and videos but really privatised closed source. 
+
 Weaveiate - https://weaviate.io/developers/weaviate/quickstart
 
-Qdrant 
+Good to use, great documentation 
 
-Milvus/Zilliz 
+Qdrant - https://qdrant.tech/documentation/quick-start/
 
-Chroma 
+- Pretty solid too use got this set up in like 30 minutes
+
+Milvus/Zilliz - https://docs.zilliz.com/docs/quick-start-1
+
+- Didnt enjoy this, Milvus zilliz confusing which is which or if they both work. Dont plan on using this when the other options are so much better
+
+Chroma -
 
 LanceDB
 
