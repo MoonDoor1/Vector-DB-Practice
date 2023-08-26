@@ -23,7 +23,9 @@ Milvus/Zilliz - https://docs.zilliz.com/docs/quick-start-1
 
 - Didnt enjoy this, Milvus zilliz confusing which is which or if they both work. Dont plan on using this when the other options are so much better
 
-Chroma - https://docs.trychroma.com/getting-started
+Chroma - https://docs.trychroma.com/getting-started 
+
+Legit took 10 minutes to set up no bugs or errors storing vectors in cache. Also performs basic queerys. 
 
 LanceDB
 
